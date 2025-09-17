@@ -4,12 +4,12 @@ import pydeck as pdk
 # ========================
 # VWorld API 설정
 # ========================
-API_KEY = "여기에_API_KEY_입력"  # 👉 VWorld에서 발급받은 본인 키
+API_KEY = "여기에_API_KEY_입력"
 VWORLD_SATELLITE = f"http://api.vworld.kr/req/wmts/1.0.0/{API_KEY}/Satellite/{{z}}/{{y}}/{{x}}.jpeg"
-VWORLD_LABEL = f"http://api.vworld.kr/req/wmts/1.0.0/{API_KEY}/Hybrid/{{z}}/{{y}}/{{x}}.png"
+VWORLD_LABEL = f"http://api.vworld.kr/req/wmts/1.0.0/{API_KEY}/Hybrid/{{z}}/{{y}}.png"
 
 # ========================
-# 데이터 정의 (링크 추가!)
+# 데이터 정의
 # ========================
 data = [
     {
@@ -24,7 +24,7 @@ data = [
         "lat": 37.666,
         "lon": 125.700,
         "desc": "여러 섬 도서지역에 만조 및 침수 피해 보고됨",
-        "url": "https://www.kyeongin.com/article/1747652"  # 연평도 관련 기사
+        "url": "https://www.kyeongin.com/article/1747652"
     },
     {
         "name": "부산 해안",
@@ -36,13 +36,13 @@ data = [
 ]
 
 # ========================
-# ScatterplotLayer (빨간 점)
+# ScatterplotLayer
 # ========================
 scatter_layer = pdk.Layer(
     "ScatterplotLayer",
     data=data,
     get_position='[lon, lat]',
-    get_color='[255, 0, 0, 200]',  # 빨간 점
+    get_color='[255, 0, 0, 200]',
     get_radius=10000,
     pickable=True,
 )
@@ -76,13 +76,13 @@ view_state = pdk.ViewState(
 )
 
 # ========================
-# 최종 Deck (툴팁에 링크 넣기!)
+# Deck (툴팁은 설명만)
 # ========================
 r = pdk.Deck(
     layers=[satellite_layer, label_layer, scatter_layer],
     initial_view_state=view_state,
     tooltip={
-        "html": "<b>{name}</b><br/>{desc}<br/><a href='{url}' target='_blank'>[관련 기사 보기]</a>",
+        "html": "<div style='padding:5px;'><b>{name}</b><br/>{desc}</div>",
         "style": {"backgroundColor": "white", "color": "black"}
     }
 )
@@ -93,9 +93,9 @@ r = pdk.Deck(
 st.title("🌊 해수면 상승 피해 지역 지도")
 st.pydeck_chart(r)
 
-st.markdown("## 📌 피해 요약")
+st.markdown("## 📌 피해 지역 카드")
+
+# 카드형 박스 (expander 활용)
 for d in data:
-    if d["url"]:
-        st.markdown(f"**✅ {d['name']}** — {d['desc']} 👉 [관련 기사]({d['url']})")
-    else:
-        st.markdown(f"**✅ {d['name']}** — {d['desc']}")
+    with st.expander(f"✅ {d['name']} — {d['desc']}"):
+        st.markdown(f"[👉 관련 기사 보러가기]({d['url']})")
